@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import useHttp from './hooks/useHttp'
 import Tasks from './components/Tasks/Tasks'
 import NewTask from './components/NewTask/NewTask'
@@ -6,28 +6,24 @@ import NewTask from './components/NewTask/NewTask'
 function App() {
   const [tasks, setTasks] = useState([])
 
-  const transformTaks = (tasksObj) => {
-    const loadedTasks = []
-    for (const taskKey in tasksObj) {
-      loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text })
-    }
-
-    setTasks(loadedTasks)
-  }
-
-  const {
-    sendRequest: fetchTasks,
-    isLoading,
-    error
-  } = useHttp(
-    {
-      url: 'https://temp-9a330-default-rtdb.firebaseio.com/tasks.json'
-    },
-    transformTaks
-  )
+  const { sendRequest: fetchTasks, isLoading, error } = useHttp()
 
   useEffect(() => {
-    fetchTasks()
+    const transformTaks = (tasksObj) => {
+      const loadedTasks = []
+      for (const taskKey in tasksObj) {
+        loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text })
+      }
+
+      setTasks(loadedTasks)
+    }
+
+    fetchTasks(
+      {
+        url: 'https://temp-9a330-default-rtdb.firebaseio.com/tasks.json'
+      },
+      transformTaks
+    )
   }, [])
 
   const taskAddHandler = (task) => {
